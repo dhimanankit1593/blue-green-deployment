@@ -1,4 +1,4 @@
-throw new Error("Simulating failure for rollback test");
+
 
 let http = require('http');
 
