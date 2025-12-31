@@ -63,6 +63,14 @@ pipeline {
       }
     }
 
+    // 🔴 MANUAL APPROVAL GATE
+    stage('Manual Approval Before Promotion') {
+      steps {
+        input message: 'GREEN deployment is healthy. Approve promotion to BLUE?',
+              ok: 'Approve & Promote'
+      }
+    }
+
     stage('Promote GREEN → BLUE') {
       steps {
         sh '''
@@ -84,7 +92,15 @@ pipeline {
 
   post {
     failure {
-      echo "Deployment failed – rollback, BLUE remains live"
+      echo "Deployment failed or approval rejected – rollback, BLUE remains live"
+      sh '''
+        docker stop ${GREEN} || true
+        docker rm ${GREEN} || true
+      '''
+    }
+
+    aborted {
+      echo "Deployment aborted – rollback, BLUE remains live"
       sh '''
         docker stop ${GREEN} || true
         docker rm ${GREEN} || true
