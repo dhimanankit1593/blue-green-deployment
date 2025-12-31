@@ -1,3 +1,5 @@
+throw new Error("Simulating failure for rollback test");
+
 let http = require('http');
 
 const APP_COLOR = process.env.APP_COLOR || "UNKNOWN";
@@ -8,3 +10,4 @@ http.createServer(function (req, res) {
 }).listen(8000, '0.0.0.0', () => {
   console.log(`Server running on port 8000 (${APP_COLOR})`);
 });
+
