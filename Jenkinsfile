@@ -27,8 +27,8 @@ pipeline {
     stage('Ensure BLUE is Running (Live)') {
       steps {
         sh '''
-          if docker ps | grep -q ${BLUE}; then
-            echo "BLUE is already running"
+          if docker ps -a --format '{{.Names}}' | grep -w ${BLUE}; then
+            echo "BLUE container already exists"
           else
             echo "Starting BLUE application"
             docker run -d -p 8000:8000 \
@@ -63,18 +63,17 @@ pipeline {
       }
     }
 
-    // 🔴 MANUAL APPROVAL GATE
     stage('Manual Approval Before Promotion') {
       steps {
-        input message: 'GREEN deployment is healthy. Approve promotion to BLUE?',
-              ok: 'Approve & Promote'
+        input message: 'GREEN is healthy. Approve promotion to BLUE?',
+              ok: 'Promote'
       }
     }
 
     stage('Promote GREEN → BLUE') {
       steps {
         sh '''
-          echo "Promoting GREEN to BLUE (zero downtime)"
+          echo "Promoting GREEN to BLUE"
 
           docker stop ${BLUE} || true
           docker rm ${BLUE} || true
